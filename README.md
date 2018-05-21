@@ -1,6 +1,2 @@
 # ESP32
-<<<<<<< HEAD
-ESP32 - PresenceSensorProject
-=======
-SensorPresenceProject
->>>>>>> branch 'master' of https://github.com/PatrizioSibona/ESP32
+This project is used to create a sensor presence using wifi module on ESP32.
