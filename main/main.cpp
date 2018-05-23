@@ -13,6 +13,7 @@
 #include "driver/gpio.h"
 #include <sys/time.h>
 #include <string.h>
+#include "SensorData.h"
 
 #define	LED_GPIO_PIN			GPIO_NUM_4
 #define	WIFI_CHANNEL_MAX		(13)
@@ -29,7 +30,6 @@ typedef struct {
 	unsigned MoreFrag:1;
 	unsigned Retry:1;
 	unsigned otherFlags:4;
-	unsigned ctrlflags:8;
 	unsigned duration_id:16;
 	uint8_t destination[6]; /* receiver address */
 	uint8_t source[6]; /* sender address */
@@ -55,7 +55,6 @@ static void wifi_sniffer_set_channel(uint8_t channel);
 static const char *wifi_sniffer_packet_type2str(wifi_promiscuous_pkt_type_t type);
 static void wifi_sniffer_packet_handler(void *buff, wifi_promiscuous_pkt_type_t type);
 
-using namespace std;
 
 void app_main(void)
 {
@@ -114,6 +113,7 @@ const char *wifi_sniffer_packet_type2str(wifi_promiscuous_pkt_type_t type)
 void wifi_sniffer_packet_handler(void* buff, wifi_promiscuous_pkt_type_t type)
 {
 	char SSID[NMAX+1]="";   //+1 to include the '\0'
+	char source[NMAX]="";
 	struct timeval time;
 
 	if (type != WIFI_PKT_MGMT)
@@ -135,17 +135,17 @@ void wifi_sniffer_packet_handler(void* buff, wifi_promiscuous_pkt_type_t type)
 			SSID[len]='\0';
 		}
 
-		printf("PACKET TYPE=PROBE, CHAN=%02d, RSSI=%02d,"
-		" ADDR=%02x:%02x:%02x:%02x:%02x:%02x,"
-		" SEQ=%x Time_sec=%ld Time_usec=%ld SSID=%s\n",
-		ppkt->rx_ctrl.channel,
-		ppkt->rx_ctrl.rssi,
-		/* Source address */
-		hdr->source[0],hdr->source[1],hdr->source[2],
-		hdr->source[3],hdr->source[4],hdr->source[5],
-		/* SEQ, time informations and SSID*/
-		hdr->sequence_ctrl, time.tv_sec, time.tv_usec, SSID
-		);
+		sprintf(source,"%02x:%02x:%02x:%02x:%02x:%02x",hdr->source[0],hdr->source[1],hdr->source[2],hdr->source[3],hdr->source[4],hdr->source[5]);
+
+		std::string s(source);
+
+		sprintf(source,"%04x",hdr->sequence_ctrl);
+
+		std::string sc(source);
+
+		SensorData SD(ppkt->rx_ctrl.channel, ppkt->rx_ctrl.rssi,time, s, sc);
+
+		SD.printData();
 
 	}
 }
