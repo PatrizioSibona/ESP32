@@ -3,6 +3,7 @@
 #include "sdkconfig.h"
 
 #include "freertos/FreeRTOS.h"
+#include "freertos/event_groups.h"
 #include <freertos/task.h>
 #include "esp_wifi.h"
 #include "esp_wifi_types.h"
@@ -18,7 +19,9 @@
 #define	LED_GPIO_PIN			GPIO_NUM_4
 #define	WIFI_CHANNEL_MAX		(13)
 #define	WIFI_CHANNEL_SWITCH_INTERVAL	(500)
-#define NMAX 32
+#define DIM_SSID 32
+#define DIM_SEQ 4
+#define DIM_ADDR 17
 
 static wifi_country_t wifi_country = {.cc="CN", .schan=1, .nchan=13, .policy=WIFI_COUNTRY_POLICY_AUTO};
 
@@ -42,8 +45,6 @@ typedef struct {
 	wifi_ieee80211_mac_hdr_t hdr;
 	uint8_t payload[0]; /* network data ended with 4 bytes csum (CRC32) */
 } wifi_ieee80211_packet_t;
-
-#define MAX_DIM 32
 
 #ifdef __cplusplus
 extern "C" {
@@ -75,7 +76,7 @@ void app_main(void)
 
 esp_err_t event_handler(void *ctx, system_event_t *event)
 {
-	return ESP_OK;
+    return ESP_OK;
 }
 
 void wifi_sniffer_init(void)
@@ -112,8 +113,10 @@ const char *wifi_sniffer_packet_type2str(wifi_promiscuous_pkt_type_t type)
 
 void wifi_sniffer_packet_handler(void* buff, wifi_promiscuous_pkt_type_t type)
 {
-	char SSID[NMAX+1]="";   //+1 to include the '\0'
-	char source[NMAX]="";
+	char SSID[DIM_SSID+1]="";   //+1 to include the '\0'
+	char source[DIM_ADDR]="";
+	char seq[DIM_SEQ]="";
+
 	struct timeval time;
 
 	if (type != WIFI_PKT_MGMT)
@@ -137,13 +140,9 @@ void wifi_sniffer_packet_handler(void* buff, wifi_promiscuous_pkt_type_t type)
 
 		sprintf(source,"%02x:%02x:%02x:%02x:%02x:%02x",hdr->source[0],hdr->source[1],hdr->source[2],hdr->source[3],hdr->source[4],hdr->source[5]);
 
-		std::string s(source);
+		sprintf(seq,"%04x",hdr->sequence_ctrl);
 
-		sprintf(source,"%04x",hdr->sequence_ctrl);
-
-		std::string sc(source);
-
-		SensorData SD(ppkt->rx_ctrl.channel, ppkt->rx_ctrl.rssi,time, s, sc);
+		SensorData SD(ppkt->rx_ctrl.channel, ppkt->rx_ctrl.rssi,time, source, seq, SSID);
 
 		SD.printData();
 

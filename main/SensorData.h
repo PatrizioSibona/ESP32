@@ -20,9 +20,10 @@ private:
 	struct timeval time;
 	string source;
 	string sequence_ctrl;
+	string SSID;
 
 public:
-	SensorData(int c, int rssi, struct timeval t, string s, string seq_ctrl);
+	SensorData(int c, int rssi, struct timeval t, char* s, char* seq_ctrl, char* ssid);
 	virtual ~SensorData();
 	void printData();
 };

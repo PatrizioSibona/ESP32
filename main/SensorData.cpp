@@ -12,8 +12,8 @@
 
 using namespace std;
 
-SensorData::SensorData(int c, int rssi, struct timeval t, string s, string seq_ctrl):
-			channel(c), RSSI(rssi), time(t), source(s), sequence_ctrl(seq_ctrl){
+SensorData::SensorData(int c, int rssi, struct timeval t, char* s, char* seq_ctrl, char* ssid):
+			channel(c), RSSI(rssi), time(t), source(s), sequence_ctrl(seq_ctrl), SSID(ssid){
 
 }
 
