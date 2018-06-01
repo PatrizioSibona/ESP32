@@ -1,12 +1,9 @@
 eclipse.preferences.version=1
-environment/project/0.498681931/BATCH_BUILD/delimiter=;
-environment/project/0.498681931/BATCH_BUILD/operation=append
-environment/project/0.498681931/BATCH_BUILD/value=1
 environment/project/0.498681931/IDF_PATH/delimiter=;
 environment/project/0.498681931/IDF_PATH/operation=append
 environment/project/0.498681931/IDF_PATH/value=C\:\\msys32\\home\\Patrizio\\esp\\esp-idf
 environment/project/0.498681931/PATH/delimiter=;
-environment/project/0.498681931/PATH/operation=append
-environment/project/0.498681931/PATH/value=C\:\\msys32\\usr\\bin;C\:\\msys32\\mingw32\\bin;C\:\\msys32\\opt\\xtensa-esp32-elf\\bin
+environment/project/0.498681931/PATH/operation=replace
+environment/project/0.498681931/PATH/value=C\:/Program Files/Java/jre1.8.0_171/bin/server;C\:/Program Files/Java/jre1.8.0_171/bin;C\:/Program Files/Java/jre1.8.0_171/lib/amd64;C\:\\Program Files (x86)\\Common Files\\Oracle\\Java\\javapath;C\:\\Program Files\\Broadcom\\Broadcom 802.11 Network Adapter\\Driver;;C\:\\oraclexe\\app\\oracle\\product\\11.2.0\\server\\bin;C\:\\WINDOWS\\system32;C\:\\WINDOWS;C\:\\WINDOWS\\System32\\Wbem;C\:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C\:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common;C\:\\Program Files\\MATLAB\\R2017a\\runtime\\win64;C\:\\Program Files\\MATLAB\\R2017a\\bin;C\:\\WINDOWS\\system32;C\:\\WINDOWS;C\:\\WINDOWS\\System32\\Wbem;C\:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C\:\\Program Files\\apache-maven-3.5.2-bin\\apache-maven-3.5.2\\bin;C\:\\Program Files\\camunda-bpm-tomcat-7.7.0;C\:\\Program Files\\Java\\jdk1.8.0_151\\bin;C\:\\Program Files\\dotnet\\;C\:\\Program Files\\Microsoft SQL Server\\130\\Tools\\Binn\\;C\:\\CooCox\\CoIDE_V2Beta\\bin;C\:\\Android;C\:\\Windows\\System32;C\:\\WINDOWS\\System32\\OpenSSH\\;C\:\\Program Files\\PuTTY\\;C\:\\Users\\Patrizio\\AppData\\Local\\Microsoft\\WindowsApps;C\:\\Users\\Patrizio\\AppData\\Local\\GitHubDesktop\\bin;C\:\\SysGCC\\arm-eabi\\bin;C\:\\Program Files (x86)\\Dr. Memory\\bin\\;%USERPROFILE%\\AppData\\Local\\Microsoft\\WindowsApps;;C\:\\Users\\Patrizio\\Desktop;C\:\\msys32\\usr\\bin;C\:\\msys32\\mingw32\\bin;C\:\\msys32\\opt\\xtensa-esp32-elf\\bin
 environment/project/0.498681931/append=true
 environment/project/0.498681931/appendContributed=true

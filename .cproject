@@ -104,7 +104,6 @@
 							</tool>
 							<tool id="org.eclipse.cdt.build.core.settings.holder.649350637" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
 								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.463609410" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="/opt/xtensa-esp32-elf/xtensa-esp32-elf/include/c++/5.2.0"/>
 									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/esp32/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/newlib/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/freertos/include&quot;"/>
@@ -135,7 +134,6 @@
 									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/stack/smp/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/api/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/include&quot;"/>
-									<listOptionValue builtIn="false" value="/opt/xtensa-esp32-elf/lib/gcc/xtensa-esp32-elf/5.2.0/include"/>
 									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/btc/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/mdns/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/soc/esp32/include&quot;"/>
@@ -148,6 +146,90 @@
 									<listOptionValue builtIn="false" value="ESP_PLATFORM=1"/>
 								</option>
 								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.745504735" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="0.498681931.83330200" name="/" resourcePath="build/include">
+						<toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.1457692385" name="No ToolChain" superClass="org.eclipse.cdt.build.core.prefbase.toolchain" unusedChildren="">
+							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.283005773" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs.164717347"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.1560810773" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder.1967519526">
+								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.279087407" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/vfs/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/spi_flash/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/json/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/mbedtls/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/bta/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/bta/sys/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/btcore/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/device/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/gki/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/hci/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/osi/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/btc/profile/esp/blufi/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/btc/profile/esp/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/btc/profile/std/sdp/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/btc/profile/std/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/stack/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/stack/l2cap/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/stack/sdp/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/stack/smp/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/api/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/btc/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/mdns/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/soc/esp32/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/aws_iot/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/aws_iot/aws-iot-device-sdk-embedded-C/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/fatfs/src&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/wear_levelling/include&quot;"/>
+									<listOptionValue builtIn="false" value="C:/msys32/home/Patrizio/esp/esp-idf/components/log/include/sdkconfig.h"/>
+								</option>
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.731773407" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.1397176693" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder.1967519526">
+								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.1813274874" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/newlib/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/freertos/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/nvs_flash/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/driver/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/log/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/tcpip_adapter/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/lwip/include/lwip&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/vfs/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/spi_flash/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/mbedtls/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/mdns/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/json/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/bta/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/bta/sys/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/btcore/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/device/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/gki/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/hci/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/osi/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/btc/profile/esp/blufi/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/btc/profile/esp/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/btc/profile/std/sdp/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/btc/profile/std/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/stack/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/stack/l2cap/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/stack/sdp/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/stack/smp/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/api/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/bt/bluedroid/btc/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/soc/esp32/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/aws_iot/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/aws_iot/aws-iot-device-sdk-embedded-C/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/fatfs/src&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${IDF_PATH}/components/wear_levelling/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\msys32\opt\xtensa-esp32-elf\xtensa-esp32-elf\include\c++\5.2.0&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\msys32\opt\xtensa-esp32-elf\lib\gcc\xtensa-esp32-elf\5.2.0\include&quot;"/>
+								</option>
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.872663363" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.283577990" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder.1967519526">
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.583380105" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
 							</tool>
 						</toolChain>
 					</folderInfo>
@@ -171,4 +253,5 @@
 			<resource resourceType="PROJECT" workspacePath="/ESP32"/>
 		</configuration>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 </cproject>

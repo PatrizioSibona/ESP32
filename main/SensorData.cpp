@@ -24,7 +24,7 @@ SensorData::~SensorData() {
 void SensorData::printData(){
 	cout << "PACKET TYPE=PROBE CHAN=" << channel << " RSSI=" << RSSI
 		 << " ADDR=" << source << " SEQ=" << sequence_ctrl
-		 << " Time_sec=" << time.tv_sec << " Time_usec=" << time.tv_usec << "\n";
+		 << " Time_sec=" << time.tv_sec << " Time_usec=" << time.tv_usec << " SSID=" << SSID << "\n";
 	return;
 }
 
