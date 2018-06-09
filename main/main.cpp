@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include "sdkconfig.h"
+#include "stdlib.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
@@ -16,6 +17,8 @@
 #include <sys/time.h>
 #include <string.h>
 #include "SensorData.h"
+#include <iostream>
+#include <sstream>
 
 //Timer includes
 #include "esp_types.h"
@@ -24,15 +27,29 @@
 #include "driver/periph_ctrl.h"
 #include "driver/timer.h"
 
+
+//Client includes
+#include "lwip/err.h"
+#include "lwip/sockets.h"
+#include "lwip/sys.h"
+#include "lwip/netdb.h"
+#include "lwip/dns.h"
+
+
 /*Set the SSID, password and channel via "make menuconfig"*/
+#define ID_BOARD CONFIG_ID_BOARD
 #define WIFI_SSID CONFIG_WIFI_SSID
 #define WIFI_PWD CONFIG_WIFI_PASSWORD
+#define SERVER_PORT CONFIG_SERVER_PORT
+#define SERVER_ADDR CONFIG_SERVER_ADDR
 
 #define	LED_GPIO_PIN			GPIO_NUM_4
 
 #define DIM_SSID 32
 #define DIM_SEQ 4
 #define DIM_ADDR 17
+
+#define DIM_SR 3
 
 
 //TIMER
@@ -127,30 +144,42 @@ static void IRAM_ATTR timer_group0_isr(void *para);
 static void example_tg0_timer_init(timer_idx_t timer_idx, bool auto_reload, double timer_interval_sec);
 static void timer_example_evt_task(void *arg);
 
-static const char *TAG = "wifi";
+//Client functions
+static int SendAuthentication();
+static void wifi_client();
+static int CheckResponse();
+static void SendData();
 
-std::vector<SensorData> ProbeVector;
+static const char *WIFI = "wifi";
+static const char *CLIENT = "client";
+
+vector<SensorData> ProbeVector;
+int s;  //socket s
+
+using namespace std;
 
 static esp_err_t event_handler(void *ctx, system_event_t *event)
 {
     switch (event->event_id) {
         case SYSTEM_EVENT_STA_START:
-            ESP_LOGI(TAG, "SYSTEM_EVENT_STA_START");
+            ESP_LOGI(WIFI, "SYSTEM_EVENT_STA_START");
             ESP_ERROR_CHECK(esp_wifi_connect());
             break;
 
         case SYSTEM_EVENT_STA_CONNECTED:
-        	ESP_LOGI(TAG, "CONNECTION SUCCESSFUL");
+        	ESP_LOGI(WIFI, "CONNECTION SUCCESSFUL");
         	break;
 
         case SYSTEM_EVENT_STA_GOT_IP:
-            ESP_LOGI(TAG, "SYSTEM_EVENT_STA_GOT_IP");
-            ESP_LOGI(TAG, "Got IP: %s\n",
+            ESP_LOGI(WIFI, "SYSTEM_EVENT_STA_GOT_IP");
+            ESP_LOGI(WIFI, "Got IP: %s\n",
                      ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip));
+            //Socket connection with PC-collector
+            wifi_client();
             break;
 
         case SYSTEM_EVENT_STA_DISCONNECTED:
-            ESP_LOGI(TAG, "SYSTEM_EVENT_STA_DISCONNECTED");
+            ESP_LOGI(WIFI, "SYSTEM_EVENT_STA_DISCONNECTED");
             ESP_ERROR_CHECK(esp_wifi_connect());
             break;
 
@@ -194,7 +223,7 @@ void app_main()
 	timer_queue = xQueueCreate(10, sizeof(timer_event_t));
 	// example_tg0_timer_init(TIMER_0, TEST_WITHOUT_RELOAD, TIMER_INTERVAL0_SEC);
 	example_tg0_timer_init(TIMER_1, TEST_WITH_RELOAD, TIMER_INTERVAL1_SEC);
-	xTaskCreate(timer_example_evt_task, "timer_evt_task", 2048, NULL, 5, NULL);
+	xTaskCreate(timer_example_evt_task, "timer_evt_task", 4096, NULL, 5, NULL);
 
     wifi_scan();
 	wifi_sniffer();
@@ -243,6 +272,7 @@ void wifi_sniffer_packet_handler(void* buff, wifi_promiscuous_pkt_type_t type)
 
 		ProbeVector.insert(ProbeVector.end(),SD);
 
+		//cout << ProbeVector.back().serialize();
 	}
 }
 
@@ -343,14 +373,157 @@ static void timer_example_evt_task(void *arg){
         timer_get_counter_value((timer_group_t)evt.timer_group, (timer_idx_t)evt.timer_idx, &task_counter_value);
         printf("Allarme passato - tempo passato = %d Secondi\n", TIMER_INTERVAL1_SEC);
 
-        printf("Send data...\n");
+
         for(SensorData s : ProbeVector)
         	s.printData();
 
-        //Clear the vector data
-        ProbeVector.clear();
+        cout << "Send data...\n";
+
+        SendData();
+
     }
 }
+
+static void wifi_client(){
+	struct sockaddr_in servaddr;
+	short port;
+	int result;
+
+	//Socket creation
+    s = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if(s < 0) {
+        ESP_LOGE(CLIENT, "Failed to allocate socket.\n");
+        return;
+    }
+
+	port = atoi (SERVER_PORT);
+
+	memset(&servaddr, 0, sizeof(servaddr));
+	//Specify information about server
+	servaddr.sin_family = AF_INET;
+	servaddr.sin_port = htons(port);
+	if(inet_aton(SERVER_ADDR, &servaddr.sin_addr)==0){
+		ESP_LOGE(CLIENT, "Failed to convert the address.\n");
+        return;
+	}
+	ESP_LOGI(CLIENT, "SOCKET CREATED");
+
+	//Connection with the server
+	if(connect(s, (struct sockaddr *) &servaddr, sizeof(servaddr))!=0){
+		ESP_LOGE(CLIENT, "Socket connect failed!\n");
+		close(s);
+		return;
+	};
+
+	ESP_LOGI(CLIENT, "CONNECTION ESTABLISHED");
+
+	if(SendAuthentication()==0)
+		ESP_LOGI(CLIENT, "WAITING RESPONSE ...");
+	else{
+		cout << "Socket will be closed!\n";
+		close(s);
+	}
+
+	result=CheckResponse();
+	if(result==0){
+		ESP_LOGI(CLIENT,"Authentication closed with OK response from server");
+	}
+	else{
+		ESP_LOGE(CLIENT,"Socket will be closed!");
+		close(s);
+	}
+	return;
+}
+
+static int SendAuthentication(){
+	string buf(ID_BOARD);
+
+    if( write(s , buf.c_str() , buf.size()) < 0)
+    {
+        ESP_LOGE(CLIENT, "SEND FAILED\n");
+        close(s);
+        return -1;
+    }
+    else
+    	ESP_LOGI(CLIENT, "AUTHENTICATION SENT CORRECTLY");
+
+   return 0;
+}
+
+static int CheckResponse(){
+	char response[DIM_SR+1];
+
+    if( read(s , response , DIM_SR) < 0)
+    {
+        ESP_LOGE(CLIENT, "READ RESPONSE FAILED\n");
+        close(s);
+        return -1;
+    }
+    else{
+    	if(response[0]=='O' && response[1]=='K'){
+    		cout << "Reply from server is an OK message\n";
+    		return 0;
+    	}
+    	else{
+    		cout << "Reply from server is an ERR message\n";
+    		return -1;
+    	}
+    }
+
+}
+
+static void SendData(){
+	ostringstream data, temp;
+	string buffer, dim;
+	int result, nbytes;
+
+	while (!ProbeVector.empty()){
+	    data << ProbeVector.back().serialize();
+	    ProbeVector.pop_back();
+	}
+
+	dim = data.str();
+
+	nbytes = dim.size();
+	//Set the flag
+	if(nbytes != 0){
+		//There are probe requests are catch in this 60 seconds
+
+		temp << nbytes;
+
+		dim = temp.str();
+
+		cout << "Size(Byte): " << dim << endl;
+		//Send buffer dimension
+		if( write(s , dim.c_str() , dim.size()) < 0)
+		{
+			ESP_LOGE(CLIENT, "SEND DIMENSION FAILED\n");
+			close(s);
+			return;
+		}
+		else
+			ESP_LOGI(CLIENT, "DIMENSION SENT CORRECTLY");
+
+		result = CheckResponse();
+		if(result == 0){
+			buffer = data.str();
+
+			if( write(s , buffer.c_str() , buffer.size()) < 0){
+
+				ESP_LOGE(CLIENT, "SEND BUFFER FAILED\n");
+				close(s);
+				return;
+			}
+			else
+				ESP_LOGI(CLIENT, "BUFFER SENT CORRECTLY");
+			return;
+		}
+		else
+			return;
+	}
+	return;
+}
+
 #ifdef __cplusplus
 }
 #endif

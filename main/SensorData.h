@@ -10,6 +10,9 @@
 
 #include <sys/time.h>
 #include <string>
+#include <sstream>
+#include <string>
+#include <iostream>
 
 using namespace std;
 
@@ -26,6 +29,7 @@ public:
 	SensorData(int c, int rssi, struct timeval t, char* s, char* seq_ctrl, char* ssid);
 	virtual ~SensorData();
 	void printData();
+	string serialize();
 };
 
 #endif /* MAIN_SENSORDATA_H_ */
