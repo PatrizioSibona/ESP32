@@ -1,6 +1,7 @@
 #include <esp_log.h>
 #include <string>
 #include <vector>
+#include <string.h>
 #include "sdkconfig.h"
 #include "stdlib.h"
 
@@ -50,6 +51,8 @@
 #define DIM_ADDR 17
 
 #define DIM_SR 3
+
+#define DEFAULT_BUFLEN 512
 
 
 //TIMER
@@ -150,11 +153,18 @@ static void wifi_client();
 static int CheckResponse();
 static void SendData();
 
+//Time sync functions
+static int GetStarted();
+void TimeParser(char *buffer);
+vector<string> split(string str, string sep);
+
 static const char *WIFI = "wifi";
 static const char *CLIENT = "client";
 
 vector<SensorData> ProbeVector;
 int s;  //socket s
+struct timeval time_st;
+int ready;
 
 using namespace std;
 
@@ -176,6 +186,9 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
                      ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip));
             //Socket connection with PC-collector
             wifi_client();
+            // Set starting time
+			GetStarted();
+			ready = 1;
             break;
 
         case SYSTEM_EVENT_STA_DISCONNECTED:
@@ -212,6 +225,7 @@ static void wifi_scan(void)
 
 void app_main()
 {
+	ready = 0;
     // Initialize NVS
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES) {
@@ -220,12 +234,15 @@ void app_main()
     }
     ESP_ERROR_CHECK( ret );
 
+	// Initialize Timer
 	timer_queue = xQueueCreate(10, sizeof(timer_event_t));
 	// example_tg0_timer_init(TIMER_0, TEST_WITHOUT_RELOAD, TIMER_INTERVAL0_SEC);
 	example_tg0_timer_init(TIMER_1, TEST_WITH_RELOAD, TIMER_INTERVAL1_SEC);
-	xTaskCreate(timer_example_evt_task, "timer_evt_task", 4096, NULL, 5, NULL);
+	xTaskCreate(timer_example_evt_task, "timer_evt_task", 8192, NULL, 5, NULL);
 
+	// Set WiFi scanner & handler
     wifi_scan();
+    while(ready==0);
 	wifi_sniffer();
 }
 
@@ -249,6 +266,12 @@ void wifi_sniffer_packet_handler(void* buff, wifi_promiscuous_pkt_type_t type)
 	if(gettimeofday(&time,NULL)==-1){
 		//err-cannot retrieve information about time
 	}
+	time.tv_usec += time_st.tv_usec;
+	if(time.tv_usec > 1000000){
+		time.tv_usec -= 1000000;
+		time.tv_sec ++;
+	}
+	time.tv_sec += time_st.tv_sec;
 
 	const wifi_promiscuous_pkt_t *ppkt = (wifi_promiscuous_pkt_t *)buff;
 	const wifi_ieee80211_packet_t *ipkt = (wifi_ieee80211_packet_t *)ppkt->payload;
@@ -374,8 +397,8 @@ static void timer_example_evt_task(void *arg){
         printf("Allarme passato - tempo passato = %d Secondi\n", TIMER_INTERVAL1_SEC);
 
 
-        for(SensorData s : ProbeVector)
-        	s.printData();
+        // for(SensorData s : ProbeVector)
+        // 	s.printData();
 
         cout << "Send data...\n";
 
@@ -417,8 +440,9 @@ static void wifi_client(){
 
 	ESP_LOGI(CLIENT, "CONNECTION ESTABLISHED");
 
-	if(SendAuthentication()==0)
+	if (SendAuthentication() == 0) {
 		ESP_LOGI(CLIENT, "WAITING RESPONSE ...");
+	}
 	else{
 		cout << "Socket will be closed!\n";
 		close(s);
@@ -479,6 +503,7 @@ static void SendData(){
 
 	while (!ProbeVector.empty()){
 	    data << ProbeVector.back().serialize();
+	    cout << ProbeVector.back().serialize();
 	    ProbeVector.pop_back();
 	}
 
@@ -522,6 +547,61 @@ static void SendData(){
 			return;
 	}
 	return;
+}
+
+static int GetStarted() {
+	char response[DEFAULT_BUFLEN];
+
+	string buf("TIME REQUEST");
+
+    if( write(s , buf.c_str() , buf.size()) < 0)
+    {
+        ESP_LOGE(CLIENT, "SEND TIME REQUEST FAILED\n");
+        close(s);
+        return -1;
+    }
+    else
+    	ESP_LOGI(CLIENT, "TIME REQUEST SENT CORRECTLY");
+
+	if (recv(s, response, DEFAULT_BUFLEN, 0) < 0)
+	{
+		ESP_LOGE(CLIENT, "READ RESPONSE FAILED TIME\n");
+		close(s);
+		return -1;
+	}
+	else {
+		ESP_LOGI(CLIENT, "RESPONSE RECEIVED TIME");
+		TimeParser(response);
+		return 0;
+	}
+}
+
+void TimeParser(char *buffer) {
+	vector<string> time_fields;
+	string buf(buffer), sep_fields("\t");
+
+	time_fields = split(buf, sep_fields);
+
+	int sec = atoi(time_fields[0].c_str());
+	int usec = atoi(time_fields[1].c_str());
+
+	// struct timeval time_st;
+	time_st.tv_sec = sec;
+	time_st.tv_usec = usec;
+
+	// settimeofday(&time_st, NULL);
+}
+
+vector<string> split(string str, string sep) {
+	char* cstr = const_cast<char*>(str.c_str());
+	char* current;
+	vector<string> arr;
+	current = strtok(cstr, sep.c_str());
+	while (current != NULL) {
+		arr.push_back(current);
+		current = strtok(NULL, sep.c_str());
+	}
+	return arr;
 }
 
 #ifdef __cplusplus

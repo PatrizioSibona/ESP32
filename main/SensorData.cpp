@@ -33,7 +33,7 @@ string SensorData::serialize(){
 
 	stream << channel << "\t" << RSSI << "\t"
 		 << source << "\t" << sequence_ctrl << "\t"
-		 << time.tv_sec << "\t" << time.tv_usec << "\t" << SSID << "\n";
+		 << time.tv_sec << "\t" << time.tv_usec << "\t" << SSID << " \n";
 
 	return stream.str();
 }
