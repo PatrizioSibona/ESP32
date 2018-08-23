@@ -43,6 +43,8 @@
 #define WIFI_PWD CONFIG_WIFI_PASSWORD
 #define SERVER_PORT CONFIG_SERVER_PORT
 #define SERVER_ADDR CONFIG_SERVER_ADDR
+#define COORD_X CONFIG_COORD_X
+#define COORD_Y CONFIG_COORD_Y
 
 #define	LED_GPIO_PIN			GPIO_NUM_4
 
@@ -460,9 +462,11 @@ static void wifi_client(){
 }
 
 static int SendAuthentication(){
-	string buf(ID_BOARD);
-
-    if( write(s , buf.c_str() , buf.size()) < 0)
+	ostringstream buf;
+	
+	buf << ID_BOARD << " CoordX " << COORD_X << " CoordY " << COORD_Y;
+	
+    if( write(s , buf.str().c_str() , buf.str().size()) < 0)
     {
         ESP_LOGE(CLIENT, "SEND FAILED\n");
         close(s);

@@ -30,6 +30,18 @@ config ID_BOARD
 	help
 	Set the ID board in order to have the possibility to identify it.
 	
+config COORD_X
+	string "X"
+	default "0.0"
+	help 
+	Set the X coordinate
+
+config COORD_Y
+	string "Y"
+	default "0.0"
+	help 
+	Set the Y coordinate
+	
 choice SCAN_METHOD
     prompt "scan method"
     default WIFI_FAST_SCAN
