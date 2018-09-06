@@ -156,9 +156,10 @@ static int CheckResponse();
 static void SendData();
 
 //Time sync functions
-static int GetStarted();
+static void GetStarted();
 void TimeParser(char *buffer);
 vector<string> split(string str, string sep);
+static void SendTime();
 
 static const char *WIFI = "wifi";
 static const char *CLIENT = "client";
@@ -553,8 +554,10 @@ static void SendData(){
 	return;
 }
 
-static int GetStarted() {
+static void GetStarted() {
 	char response[DEFAULT_BUFLEN];
+	
+	struct timeval time;
 
 	string buf("TIME REQUEST");
 
@@ -562,21 +565,37 @@ static int GetStarted() {
     {
         ESP_LOGE(CLIENT, "SEND TIME REQUEST FAILED\n");
         close(s);
-        return -1;
+        return;
     }
     else
     	ESP_LOGI(CLIENT, "TIME REQUEST SENT CORRECTLY");
 
-	if (recv(s, response, DEFAULT_BUFLEN, 0) < 0)
-	{
-		ESP_LOGE(CLIENT, "READ RESPONSE FAILED TIME\n");
-		close(s);
-		return -1;
-	}
-	else {
-		ESP_LOGI(CLIENT, "RESPONSE RECEIVED TIME");
-		TimeParser(response);
-		return 0;
+	while(1){
+		if (recv(s, response, DEFAULT_BUFLEN, 0) < 0)
+		{
+			ESP_LOGE(CLIENT, "READ RESPONSE FAILED TIME\n");
+			close(s);
+			return;
+		}
+		else {
+			ESP_LOGI(CLIENT, "RESPONSE RECEIVED TIME");
+			if(response[0]=='O' && response[1]=='K'){
+				if(gettimeofday(&time,NULL)==-1){
+					//err-cannot retrieve information about time
+				}
+				
+				time_st.tv_sec -= time.tv_sec;
+				time_st.tv_usec -= time.tv_usec;
+				
+				cout << "Reply from server is an OK message\n";
+				return;
+			}
+			else
+				TimeParser(response);			
+		}
+		
+		//Send the actual time	
+		SendTime();
 	}
 }
 
@@ -588,6 +607,7 @@ void TimeParser(char *buffer) {
 
 	int sec = atoi(time_fields[0].c_str());
 	int usec = atoi(time_fields[1].c_str());
+	
 
 	// struct timeval time_st;
 	time_st.tv_sec = sec;
@@ -606,6 +626,20 @@ vector<string> split(string str, string sep) {
 		current = strtok(NULL, sep.c_str());
 	}
 	return arr;
+}
+
+static void SendTime(){
+	char buf[DEFAULT_BUFLEN];
+	
+sprintf(buf, "%d\t%d", (int)time_st.tv_sec, (int)time_st.tv_usec);
+	if (write(s , buf, DEFAULT_BUFLEN) < 0) {
+		ESP_LOGE(CLIENT, "SEND TIME FAILED\n");
+		close(s);
+	}
+	else {
+		ESP_LOGI(CLIENT, "TIME SENT CORRECTLY");
+	}
+	return;
 }
 
 #ifdef __cplusplus
