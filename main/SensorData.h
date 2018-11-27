@@ -24,9 +24,10 @@ private:
 	string source;
 	string sequence_ctrl;
 	string SSID;
+	string tags;
 
 public:
-	SensorData(int c, int rssi, struct timeval t, char* s, char* seq_ctrl, char* ssid);
+	SensorData(int c, int rssi, struct timeval t, char* s, char* seq_ctrl, char* ssid, string str_tag);
 	virtual ~SensorData();
 	void printData();
 	string serialize();

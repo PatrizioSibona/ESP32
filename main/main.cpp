@@ -55,6 +55,8 @@
 #define DIM_SR 3
 
 #define DEFAULT_BUFLEN 512
+#define DIM_DEF_HEADER 24
+#define DIM_CRC 4
 
 
 //TIMER
@@ -260,6 +262,7 @@ void wifi_sniffer_packet_handler(void* buff, wifi_promiscuous_pkt_type_t type)
 	char SSID[DIM_SSID+1]="";   //+1 to include the '\0'
 	char source[DIM_ADDR+1]="";
 	char seq[DIM_SEQ+1]="";
+	int tag;
 
 	struct timeval time;
 
@@ -277,12 +280,13 @@ void wifi_sniffer_packet_handler(void* buff, wifi_promiscuous_pkt_type_t type)
 	time.tv_sec += time_st.tv_sec;
 
 	const wifi_promiscuous_pkt_t *ppkt = (wifi_promiscuous_pkt_t *)buff;
+	int lenpkt=ppkt->rx_ctrl.sig_len;  //length of entire packet
 	const wifi_ieee80211_packet_t *ipkt = (wifi_ieee80211_packet_t *)ppkt->payload;
 	const wifi_ieee80211_mac_hdr_t *hdr = &ipkt->hdr;
 
 	if((hdr->type==0) && (hdr->subtype==4) && (hdr->ToDSFromDS!=3) && (hdr->Retry==0)){  //filter packet probe request, retry and packet without IPv4
 
-		if(ipkt->payload[0]==0){  //direct probe request
+		if(ipkt->payload[0]==0){
 			int len=ipkt->payload[1];  //payload[1] contains the number of bytes used to store SSID
 			memcpy(SSID,ipkt->payload+2,len);
 			SSID[len]='\0';
@@ -292,7 +296,51 @@ void wifi_sniffer_packet_handler(void* buff, wifi_promiscuous_pkt_type_t type)
 
 		sprintf(seq,"%04x",hdr->sequence_ctrl);
 
-		SensorData SD(ppkt->rx_ctrl.channel, ppkt->rx_ctrl.rssi,time, source, seq, SSID);
+		//tags used to identify hidden MAC
+		int dim=DIM_DEF_HEADER;
+		ostringstream tags;
+		char tag1[DEFAULT_BUFLEN+1]="", tag45[DEFAULT_BUFLEN+1]="",tmp[DEFAULT_BUFLEN+1]="";
+		int i;
+		char* ptr;
+		while(dim<(lenpkt-DIM_CRC)){
+			tag=ppkt->payload[dim];
+			tags << tag;
+			int length=ppkt->payload[dim+1];
+			memcpy(tmp,ppkt->payload+(dim+2),length);
+			tmp[length]='\0';
+			if(tag==1){
+				ptr=tag1;
+				i=0;
+				while(i<length){
+					sprintf(ptr,"%02x",tmp[i]);
+					ptr+=2;
+					i++;
+				}
+			}
+			if(tag==45){
+				i=0;
+				ptr=tag45;
+				while(i<length){
+					sprintf(ptr,"%02x",tmp[i]);
+					ptr+=2;
+					i++;
+				}
+			}
+			dim+=(2+length);
+			if(dim<(lenpkt-DIM_CRC))
+				tags << ',';  //insert the ',' only if will be present a new tag
+			else{
+				tags << ',' << tag1 <<',' << tag45;   //add value of 1 and 5
+			}
+		}
+
+		//printf("TAG1: %s TAG45: %s\n",tag1,tag45);
+
+		sprintf(source,"%02x:%02x:%02x:%02x:%02x:%02x",hdr->source[0],hdr->source[1],hdr->source[2],hdr->source[3],hdr->source[4],hdr->source[5]);
+
+		sprintf(seq,"%04x",hdr->sequence_ctrl);
+
+		SensorData SD(ppkt->rx_ctrl.channel, ppkt->rx_ctrl.rssi,time, source, seq, SSID, tags.str());
 
 		//SD.printData();
 
