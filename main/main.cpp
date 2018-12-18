@@ -58,6 +58,8 @@
 #define DIM_DEF_HEADER 24
 #define DIM_CRC 4
 
+#define N_SYNC 60
+
 
 //TIMER
 #define TIMER_DIVIDER         16  //  Hardware timer clock divider
@@ -170,6 +172,7 @@ vector<SensorData> ProbeVector;
 int s;  //socket s
 struct timeval time_st;
 int ready;
+int cycle_counter=0;
 
 using namespace std;
 
@@ -427,10 +430,9 @@ static void example_tg0_timer_init(timer_idx_t timer_idx, bool auto_reload, doub
     timer_start(TIMER_GROUP_0, timer_idx);
 }
 
-/*
- * The main task of this example program
- */
 static void timer_example_evt_task(void *arg){
+	int result;
+
     while (1) {
         timer_event_t evt;
         xQueueReceive(timer_queue, &evt, portMAX_DELAY);
@@ -454,6 +456,16 @@ static void timer_example_evt_task(void *arg){
         cout << "Send data...\n";
 
         SendData();
+
+        cycle_counter ++;
+
+        if(cycle_counter == N_SYNC){
+        	//Necessary sync
+            //Close socket in send mode using 1
+            result = shutdown(s,1);
+        	//restart the ESP32 in order to sync again the clock
+        	esp_restart();
+        }
 
     }
 }
@@ -556,7 +568,7 @@ static void SendData(){
 
 	while (!ProbeVector.empty()){
 	    data << ProbeVector.back().serialize();
-	    cout << ProbeVector.back().serialize();
+	    //cout << ProbeVector.back().serialize();
 	    ProbeVector.pop_back();
 	}
 
@@ -564,7 +576,7 @@ static void SendData(){
 
 	nbytes = dim.size();
 	//Set the flag
-	if(nbytes != 0){
+	if(nbytes >= 0){   //We send also dimension 0 in order to keep alive the connection with the collector
 		//There are probe requests are catch in this 60 seconds
 
 		temp << nbytes;
